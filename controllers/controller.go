@@ -8,7 +8,9 @@ import (
 	)
 
 func ShowStudents(c *gin.Context){
-	c.JSON(http.StatusOK, models.Students)
+	var students []models.Student
+	database.DB.Find(&students)
+	c.JSON(http.StatusOK, students)
 }
 
 func CreateStudent(c *gin.Context){
@@ -21,4 +23,25 @@ func CreateStudent(c *gin.Context){
 	database.DB.Create(&student)
 	c.JSON(http.StatusOK, student)
 
+}
+
+func ShowStudentByID(c *gin.Context) {
+	var student models.Student
+	id := c.Params.ByName("id")
+	database.DB.First(&student, id)
+
+	if student.ID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"Not found": "Student not found"})
+		return
+	}	
+
+	c.JSON(http.StatusOK, student)
+}
+
+func DeleteStudent(c *gin.Context) {
+	var student models.Student
+	id := c.Params.ByName("id")
+	database.DB.Delete(&student, id)
+	c.JSON(http.StatusOK, gin.H{"data": "Successfully deleted student"})
 }
